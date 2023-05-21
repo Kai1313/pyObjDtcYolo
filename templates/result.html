@@ -1,0 +1,17 @@
+<!-- result.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Object Detection Results</title>
+</head>
+<body>
+    <h1>Object Detection Results</h1>
+    <h2>Label Counts:</h2>
+    <ul>
+        {% for label_count in label_counts %}
+        <li>{{ label_count.label }}: {{ label_count.count }}</li>
+        {% endfor %}
+    </ul>
+    <img src="{{ image_path }}" alt="Uploaded Image">
+</body>
+</html>

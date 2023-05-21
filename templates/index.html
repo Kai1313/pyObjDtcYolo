@@ -1,0 +1,117 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <title>Python Object Detection</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+
+    <body style="background: #214a80;">
+        <div class="login-dark" style="height: 695px;">
+            <form action="/uploadv2" method="post" enctype="multipart/form-data">
+                <h2 class="sr-only">Object Detection</h2>
+                <div class="illustration"><i class="icon ion-aperture"></i></div>
+                <div class="form-group">
+                    <input class="form-control" id="fileInput" type="file" name="image" placeholder="put your image here">
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary btn-block" id="identify-btn">Identify</button>
+                </div>
+                <div class="form-group" id="image-container">
+                </div>
+            </form>
+        </div>
+
+        <!-- The Modal -->
+        <div class="modal" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Result</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-12" id="img-container">
+                                    
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12" id="label-container">
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#identify-btn').click(function() {
+                    var button = $("#identify-btn")
+                    var loader = $("<div class='loader'></div>")
+                    // Show loading animation
+                    button.prop("disabled", true)
+                    button.addClass("loading")
+
+                    // Get the selected file
+                    const file = $('#fileInput')[0].files[0]
+                    console.log(file)
+
+                    // Create a FormData object
+                    const formData = new FormData()
+                    formData.append('image', file)
+                    console.log(formData)
+
+                    // Send the AJAX request
+                    $.ajax({
+                        url: '/uploadv2',
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            // Request succeeded
+                            console.log(response)
+                            let img = response.labeled_image_path
+                            let labels = response.label_counts
+                            let list = '<ul>'
+                            labels.forEach(item => {
+                                list += '<li>'+item.label+' : '+item.count+'</li>'
+                            })
+                            list += '</ul>'
+                            $('#img-container').html('<img src="' + img + '" class="img-fluid">')
+                            $('#label-container').html(list)
+                            button.prop("disabled", false)
+                            button.removeClass("loading")
+                            $("#myModal").modal("show")
+                        },
+                        error: function(xhr, status, error) {
+                            // Request failed
+                            console.error('Upload failed. Status:', status)
+                            button.prop("disabled", false)
+                            button.removeClass("loading")
+                        }
+                    })
+                })
+            })
+        </script>
+    </body>
+
+</html>
+
